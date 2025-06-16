@@ -1,47 +1,53 @@
-# 🧩 网络聊天室项目说明文档
-作者：<麦当当(mdd)>
-这是一个基于 PyQt5 + Socket + MySQL 的 简单网络聊天室应用。
-支持用户注册、登录、发送消息，并将数据持久化到数据库中。
- 
-# 📁 项目结构
+```markdown
+# 🧩 PyQt5-socket-chatroom 网络聊天室项目说明文档
 
-`.
-├── server.py           # 服务端程序（需先运行）
-├── client.py           # 客户端通信模块
-├── auth_window.py      # 登录/注册界面
-├── chat_window.py      # 聊天主界面
-├── models.py           # 数据库模型（使用 SQLAlchemy）
-├── main.py             # 主入口（启动图形界面）
-├── README.md           # 当前文件
-└── requirements.txt    # Python 依赖包列表
-`
+## 一、项目基本信息
+**作者**：麦当当(mdd)  
+这是一个基于 **PyQt5 + Socket + MySQL** 技术栈开发的简单网络聊天室应用，具备用户注册、登录、发送消息功能，且能将聊天数据持久化存储到数据库中。
 
-# ⚙️ 环境要求
-Python 3.7+
-MySQL 5.7+（已安装并运行）
-
-
-# 🔧 安装依赖
-pip install -r requirements.txt
-
-
-# 🗃️ 数据库配置
-本项目使用 MySQL 存储用户信息和聊天记录。
-
-
-# ✅ 创建数据库与表
-进入 MySQL 命令行，执行以下 SQL 语句：
-
+## 二、项目结构
+项目文件及功能说明如下：
 ```
+.
+├── server.py        # 服务端程序（需先运行，负责接收、转发消息等服务端逻辑）
+├── client.py        # 客户端通信模块（处理客户端与服务端的 socket 连接、数据收发）
+├── auth_window.py   # 登录/注册界面（提供用户注册、登录交互入口）
+├── chat_window.py   # 聊天主界面（用户聊天交互、消息展示的窗口）
+├── models.py        # 数据库模型（使用 SQLAlchemy 定义数据库表结构和操作）
+├── main.py          # 主入口（启动图形界面，串联各功能模块）
+├── README.md        # 项目说明文档（当前文件，指导项目使用与配置）
+└── requirements.txt # Python 依赖包列表（记录项目所需依赖及版本）
+```
+
+## 三、环境要求
+- **Python 版本**：3.7 及以上  
+- **MySQL 版本**：5.7 及以上（需确保已安装并正常运行）  
+
+## 四、安装依赖
+通过 `pip` 工具安装项目所需 Python 依赖包，执行命令：  
+```bash
+pip install -r requirements.txt
+```
+
+## 五、数据库配置
+本项目使用 MySQL 数据库存储用户信息和聊天记录，配置步骤如下：
+
+### （一）创建数据库与表
+进入 MySQL 命令行，依次执行以下 SQL 语句：  
+```sql
+-- 创建数据库
 CREATE DATABASE chat_db;
+-- 使用该数据库
 USE chat_db;
 
+-- 创建用户表，存储用户注册信息
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL
 );
 
+-- 创建消息表，存储聊天记录
 CREATE TABLE messages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
@@ -50,47 +56,55 @@ CREATE TABLE messages (
 );
 ```
 
-# 📂 修改数据库连接地址（models.py）
-
-### 在 models.py 中修改如下一行以匹配你的 MySQL 配置：
-
+### （二）修改数据库连接配置（models.py）
+打开 `models.py` 文件，找到数据库连接配置相关代码，按实际 MySQL 配置修改：  
+- 若 MySQL 设置了密码，修改为：  
+```python
 DATABASE_URI = 'mysql+mysqlconnector://root:your_password@localhost/chat_db'
-
-### 如果你没有设置密码，可改为：
-
+```  
+- 若未设置密码，修改为：  
+```python
 DATABASE_URI = 'mysql+mysqlconnector://root@localhost/chat_db'
+```  
+（将 `your_password` 替换为你实际的 MySQL 密码，若有其他用户名也需对应替换 ）
+
+## 六、启动与运行
+### （一）启动顺序
+1. **启动服务端**  
+打开终端，执行命令：  
+```bash
+python server.py
+```  
+也可直接运行编译后 `dist` 目录下的 `server.exe`（若有编译产物）。  
+
+2. **启动客户端**  
+另开一个终端，执行命令：  
+```bash
+python main.py
+```  
+同样可运行 `dist` 目录下的 `main.exe`（若有编译产物）。  
 
 
-# ▶️ 启动顺序
-## 启动服务端
-    python server.py
-## 启动客户端
-    python main.py
+## 七、使用说明
+- 支持多用户同时在线聊天，利用 Socket 实现实时通信。  
+- 注册时用户名需唯一，系统会校验避免重复。  
+- 所有聊天记录会通过 MySQL 持久化保存，支持中文、英文等 UTF-8 编码内容发送。  
 
 
- 或者按顺序启动dist目录下的server.exe和main.exe
+## 八、常见问题与解决方案
+| 常见问题                | 解决方案                                                                 |
+|-------------------------|--------------------------------------------------------------------------|
+| 数据库连接失败          | 检查 MySQL 服务是否启动，确认 `models.py` 中用户名、密码、数据库名配置正确   |
+| 表不存在                | 按照“五、（一）”步骤，在 MySQL 中创建对应的数据库和表结构                   |
+| 客户端无法连接          | 检查 `server.py` 和 `main.py` 中设置的 IP 地址和端口号是否一致、可访问       |
+| 缺少 `mysqlclient` 依赖 | 执行 `pip install mysqlclient` 或 `pip install mysql-connector-python` 安装 |  
 
 
-# 📌 使用说明
-支持多用户同时在线聊天。
-注册后即可登录，用户名唯一。
-所有聊天记录会保存到数据库。
-支持中文、英文等 UTF-8 编码内容。
+## 九、可扩展方向
+- 增加群聊、私聊功能，实现更丰富的聊天场景。  
+- 支持表情发送、文件传输，提升聊天体验。  
+- 优化界面布局与样式，添加主题切换等个性化设置。  
+- 实现消息撤回、编辑功能，增强交互性。 
+```
 
-
-# 常见问题：
-1、数据库连接失败
-2、表不存在
-3、客户端无法链接
-4、没有mysqlclient
-
-# 解决方案：
-1、检查 MySQL 服务是否启动，用户名和密码是否正确。
-2、在 MySQL 中创建数据库和表。
-3、检查server.py和main.py中的IP地址和端口号是否正确。
-4、使用 pip install mysqlclient 或 mysql-connector-python
-
-# 📝 其他资源
-示例账号：注册后即可登录使用
-多人同时使用：支持 TCP 多客户端连接
-可扩展性：可添加群聊、私聊、表情、文件传输等功能
+这样的结构更清晰，用标题分级、列表、表格等方式优化了阅读体验，也补充了部分细节说明，方便直接复用~
